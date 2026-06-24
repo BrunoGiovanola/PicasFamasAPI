@@ -1,6 +1,0 @@
-﻿namespace NumberGuessGameApi.DataTransferObjects
-{
-    public class Placeholder
-    {
-    }
-}
