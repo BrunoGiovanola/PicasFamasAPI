@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using NumberGuessGameApi.Data;
 
 namespace NumberGuessGameApi
 {
@@ -10,6 +12,10 @@ namespace NumberGuessGameApi
             // Add services to the container.
 
             builder.Services.AddControllers();
+
+            builder.Services.AddDbContext<GameDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
