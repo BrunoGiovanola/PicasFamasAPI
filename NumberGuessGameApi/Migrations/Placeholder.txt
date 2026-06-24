@@ -1,0 +1,6 @@
+﻿namespace NumberGuessGameApi.Migrations
+{
+    public class Placeholder
+    {
+    }
+}

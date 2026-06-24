@@ -1,0 +1,6 @@
+﻿namespace NumberGuessGameApi.Data
+{
+    public class Placeholder
+    {
+    }
+}
