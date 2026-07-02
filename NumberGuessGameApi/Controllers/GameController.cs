@@ -21,10 +21,12 @@ public class GameController : ControllerBase
     public async Task<IActionResult> Register(RegisterPlayerRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.FirstName) ||
-            string.IsNullOrWhiteSpace(request.LastName) ||
-            request.Age <= 0)
+    string.IsNullOrWhiteSpace(request.LastName) ||
+    request.Age <= 0 ||
+    string.IsNullOrWhiteSpace(request.Username) ||
+    string.IsNullOrWhiteSpace(request.Password))
         {
-            return BadRequest("FirstName, LastName y Age son obligatorios.");
+            return BadRequest("FirstName, LastName, Age, Username y Password son obligatorios.");
         }
 
         var exists = await _context.Players.AnyAsync(p =>
@@ -41,7 +43,9 @@ public class GameController : ControllerBase
         {
             FirstName = request.FirstName,
             LastName = request.LastName,
-            Age = request.Age
+            Age = request.Age,
+            Username = request.Username,
+            PasswordHash = request.Password
         };
 
         _context.Players.Add(player);
