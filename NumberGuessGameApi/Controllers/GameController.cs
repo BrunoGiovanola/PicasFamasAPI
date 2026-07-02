@@ -111,6 +111,15 @@ public class GameController : ControllerBase
     [HttpPost("guess")]
     public async Task<IActionResult> Guess(GuessRequest request)
     {
+        var playerIdClaim = User.FindFirst("playerId")?.Value;
+
+        if (string.IsNullOrWhiteSpace(playerIdClaim))
+        {
+            return Unauthorized("Token inválido: no contiene playerId.");
+        }
+
+        var playerId = int.Parse(playerIdClaim);
+
         if (string.IsNullOrWhiteSpace(request.Number) ||
             request.Number.Length != 4 ||
             !request.Number.All(char.IsDigit) ||
@@ -124,6 +133,11 @@ public class GameController : ControllerBase
         if (game == null)
         {
             return NotFound("Juego no encontrado.");
+        }
+
+        if (game.PlayerId != playerId)
+        {
+            return Forbid();
         }
 
         if (game.IsFinished)
