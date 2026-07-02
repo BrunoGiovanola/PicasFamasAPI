@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using NumberGuessGameApi.Data;
 using NumberGuessGameApi.DataTransferObjects;
 using NumberGuessGameApi.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace NumberGuessGameApi.Controllers;
 
@@ -58,10 +60,20 @@ public class GameController : ControllerBase
         });
     }
 
+    [Authorize]
     [HttpPost("start")]
     public async Task<IActionResult> Start(StartGameRequest request)
     {
-        var player = await _context.Players.FindAsync(request.PlayerId);
+        var playerIdClaim = User.FindFirst("playerId")?.Value;
+
+        if (string.IsNullOrWhiteSpace(playerIdClaim))
+        {
+            return Unauthorized("Token inválido: no contiene playerId.");
+        }
+
+        var playerId = int.Parse(playerIdClaim);
+
+        var player = await _context.Players.FindAsync(playerId);
 
         if (player == null)
         {
@@ -69,7 +81,7 @@ public class GameController : ControllerBase
         }
 
         var activeGame = await _context.Games.AnyAsync(g =>
-            g.PlayerId == request.PlayerId &&
+            g.PlayerId == playerId &&
             !g.IsFinished);
 
         if (activeGame)
@@ -79,7 +91,7 @@ public class GameController : ControllerBase
 
         var game = new Game
         {
-            PlayerId = request.PlayerId,
+            PlayerId = playerId,
             SecretNumber = GenerateSecretNumber(),
             IsFinished = false,
             CreatedAt = DateTime.UtcNow
@@ -95,9 +107,19 @@ public class GameController : ControllerBase
         });
     }
 
+    [Authorize]
     [HttpPost("guess")]
     public async Task<IActionResult> Guess(GuessRequest request)
     {
+        var playerIdClaim = User.FindFirst("playerId")?.Value;
+
+        if (string.IsNullOrWhiteSpace(playerIdClaim))
+        {
+            return Unauthorized("Token inválido: no contiene playerId.");
+        }
+
+        var playerId = int.Parse(playerIdClaim);
+
         if (string.IsNullOrWhiteSpace(request.Number) ||
             request.Number.Length != 4 ||
             !request.Number.All(char.IsDigit) ||
@@ -111,6 +133,11 @@ public class GameController : ControllerBase
         if (game == null)
         {
             return NotFound("Juego no encontrado.");
+        }
+
+        if (game.PlayerId != playerId)
+        {
+            return Forbid();
         }
 
         if (game.IsFinished)
