@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NumberGuessGameApi.Data;
+using NumberGuessGameApi.Services;
 
 namespace NumberGuessGameApi
 {
@@ -12,6 +13,7 @@ namespace NumberGuessGameApi
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddScoped<TokenService>();
 
             builder.Services.AddDbContext<GameDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

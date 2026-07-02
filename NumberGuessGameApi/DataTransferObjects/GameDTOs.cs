@@ -25,7 +25,7 @@ public class LoginRequest
 
 public class LoginResponse
 {
-    public int PlayerId { get; set; }
+    public string Token { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
 }
 

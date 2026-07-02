@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using NumberGuessGameApi.Data;
 using NumberGuessGameApi.DataTransferObjects;
+using NumberGuessGameApi.Services;
 
 namespace NumberGuessGameApi.Controllers;
 
@@ -10,10 +11,12 @@ namespace NumberGuessGameApi.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly GameDbContext _context;
+    private readonly TokenService _tokenService;
 
-    public AuthController(GameDbContext context)
+    public AuthController(GameDbContext context, TokenService tokenService)
     {
         _context = context;
+        _tokenService = tokenService;
     }
 
     [HttpPost("login")]
@@ -34,10 +37,12 @@ public class AuthController : ControllerBase
             return Unauthorized("Credenciales inválidas.");
         }
 
+        var token = _tokenService.GenerateToken(player);
+
         return Ok(new LoginResponse
         {
-            PlayerId = player.PlayerId,
+            Token = token,
             Message = "Login correcto."
-        });
+        }); ;
     }
 }
